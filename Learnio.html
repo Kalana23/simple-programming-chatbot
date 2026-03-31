@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learnio Chatbot</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: #eef2ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .chat-container {
+      width: 90%;
+      max-width: 400px;
+      height: 540px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .chat-box {
+      flex: 1;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background: #f9fafc;
+      scroll-behavior: smooth;
+    }
+    .message {
+      padding: 10px 14px;
+      margin: 6px 0;
+      border-radius: 12px;
+      max-width: 78%;
+      line-height: 1.4;
+      white-space: pre-line;
+    }
+    .user {
+      background: #4f46e5;
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 5px;
+    }
+    .bot {
+      background: #e5e7eb;
+      color: #111827;
+      align-self: flex-start;
+      border-bottom-left-radius: 5px;
+    }
+    .input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+    }
+    .input-area button {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      margin-left: 6px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .input-area button:hover {
+        background: #4338ca;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="chat-container">
+    <header>💻 Learnio Chatbot</header>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Ask me something...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    const responses = [
+      {keywords: ["hi", "hello"],reply:"Hey there! 👋 How are you doing today?"},
+      {keywords:["good", "great", "fine"],reply:"Glad to hear that! You can now ask me programming-related questions."},
+
+      { keywords: ["python"], reply: " Python is an easy-to-learn, high-level programming language. It's used for AI, data science, web development, automation, and more." },
+      { keywords: ["html"], reply: " HTML (HyperText Markup Language) is the standard markup language used to create web pages." },
+      { keywords: ["css"], reply: " CSS (Cascading Style Sheets) is used to describe the presentation of a web page, including colors, fonts, and layout." },
+      { keywords: ["javascript", "js"], reply: " JavaScript is a scripting language that enables interactive behavior on web pages (buttons, animations, logic)." },
+      { keywords: ["java"], reply: " Java is an object-oriented language. It's widely used in Android app development and enterprise-level systems." },
+      { keywords: ["c language", "c program"], reply: " C is a powerful procedural language. It's often used for system programming and embedded systems." },
+      { keywords: ["c++", "cpp"], reply: " C++ is an upgraded version of C, with features like classes, objects, and OOP." },
+      { keywords: ["framework"], reply: " A framework provides a pre-written code structure to build applications faster. Examples: React, Django, Angular." },
+      { keywords: ["database", "sql"], reply: " A database is a system for storing and retrieving data. SQL is the language used to query databases." },
+      { keywords: ["api"], reply: " An API (Application Programming Interface) is an interface that allows one program to use the features of another." },
+      { keywords: ["ai", "artificial intelligence"], reply: "🤖 Artificial Intelligence is a field where machines are made to think, respond, and recognize patterns like humans." },
+      { keywords: ["ml", "machine learning"], reply: " Machine Learning is a subfield of AI that involves identifying patterns in data to make predictions." },
+      { keywords: ["algorithm"], reply: " An algorithm is a set of step-by-step instructions to solve a problem efficiently." },
+
+      { keywords: ["datatype", "data type", "int", "float", "char"], reply: " A Data Type specifies the type of data a variable can hold. \n\nExample (Java):\n`int myNum = 5;`\n`float myFloat = 5.99f;`\n`char myLetter = 'D';`\n`boolean myBool = true;`\n`String myText = \"Hello\";`" },
+      { keywords: ["variable"], reply: " A Variable is a memory location used to store data temporarily in a program. \n\nExample (C):\n`int myAge = 25; // myAge is a variable`" },
+      { keywords: ["operator", "operators", "+", "-", "*", "/"], reply: " Operators are symbols used to perform operations on variables and values. \n\nExample (Java):\n`int x = 10 + 5; // Addition`\n`int y = 10 - 5; // Subtraction`\n`int z = 10 * 5; // Multiplication`\n`int w = 10 / 5; // Division`" },
+      { keywords: ["if", "if-else", "else if", "condition"], reply: " 'if-else' is a conditional statement. It executes a block of code if a condition is true, and another block if it's false. \n\nExample (Java):\n`int x = 10;`\n`if (x > 5) {`\n`  System.out.println(\"x is greater than 5\");`\n`} else {`\n`  System.out.println(\"x is 5 or less\");`\n`}`" },
+      { keywords: ["loop", "for loop", "for"], reply: " A 'for' loop executes a block of code a specific number of times. \n\nExample (C):\n`for (int i = 0; i < 5; i++) {`\n`  printf(\"%d\\n\", i); // Prints 0 to 4`\n`}`" },
+      { keywords: ["while", "while loop"], reply: " A 'while' loop executes a block of code as long as its condition remains true. \n\nExample (C):\n`int i = 0;`\n`while (i < 5) {`\n`  printf(\"%d\\n\", i);`\n`  i++;`\n`}`" },
+      { keywords: ["do-while", "do while"], reply: " A 'do-while' loop is similar to a while loop, but it guarantees the code block will run at least once. \n\nExample (C):\n`int i = 0;`\n`do {`\n`  printf(\"%d\\n\", i);`\n`  i++;`\n`} while (i < 5);`" },
+      { keywords: ["function", "method"], reply: " A function (or method in Java) is a block of code that runs only when it is called. \n\nExample (C):\n`// Define the function`\n`void myFunc() {`\n`  printf(\"I just got executed!\");`\n`}`\n\n`// Call the function in main`\n`int main() {`\n`  myFunc(); // Outputs the message`\n`  return 0;`\n`}`" },
+      { keywords: ["switch", "switch case"], reply: "🚦 A 'switch' statement selects one of many code blocks to be executed based on a variable's value. \n\nExample (Java):\n`int day = 4;`\n`switch (day) {`\n`  case 1:`\n`    System.out.println(\"Monday\");`\n`    break;`\n`  case 4:`\n`    System.out.println(\"Thursday\");`\n`    break;`\n`  default:`\n`    System.out.println(\"Other day\");`\n`}`" },
+      { keywords: ["pointer", "pointers"], reply: "👉 A Pointer (used in C/C++) is a variable that stores the memory address of another variable. \n\nExample (C):\n`int myAge = 43;`\n`int* ptr = &myAge; // ptr stores the address of myAge`\n`printf(\"%p\\n\", ptr);  // Prints the memory address`\n`printf(\"%d\\n\", *ptr); // De-reference: outputs 43`" },
+
+      { keywords: ["oop", "object oriented", "class", "object"], reply: " Object-Oriented Programming (OOP) is a way of organizing code around classes and objects. A 'Class' is a blueprint for creating 'Objects'. \n\nExample (Java):\n`// Class (Blueprint)`\n`public class Dog {`\n`  String breed;`\n`  void bark() {`\n`    System.out.println(\"Woof!\");`\n`  }`\n`}`\n\n`// Object (Instance)`\n`Dog myDog = new Dog();`\n`myDog.breed = \"Labrador\";`\n`myDog.bark(); // Outputs \"Woof!\"`" },
+      
+      { keywords: ["data structure", "data structures"], reply: " A Data Structure is a way of organizing and storing data efficiently. Common examples include arrays, linked lists, stacks, queues, trees, and graphs." },
+      { keywords: ["array", "arrays"], reply: " An array is a data structure that stores multiple values of the same type in a single variable, accessed by an index. \n\nExample (Java):\n`String[] cars = {\"Volvo\", \"BMW\", \"Ford\"};`\n`System.out.println(cars[0]); // Outputs Volvo`" },
+      { keywords: ["linked list", "list"], reply: "🔗 A Linked List is a linear data structure where elements are not stored at contiguous locations; they are linked using pointers. \n\nExample (Java conceptual):\n`// Each 'Node' contains data and a pointer to the 'next' Node`\n`Node head = new Node(1);`\n`Node second = new Node(2);`\n`head.next = second;`" },
+      { keywords: ["stack"], reply: " A Stack is a LIFO (Last-In, First-Out) data structure. Think of it like a stack of plates. \n\nExample (Java conceptual):\n`Stack<String> stack = new Stack<String>();`\n`stack.push(\"A\"); // Add A`\n`stack.push(\"B\"); // Add B`\n`String top = stack.pop(); // Remove and get B`" },
+      { keywords: ["queue"], reply: "🚶 A Queue is a FIFO (First-In, First-Out) data structure. Like a line of people waiting. \n\nExample (Java conceptual):\n`Queue<String> q = new LinkedList<String>();`\n`q.add(\"A\"); // Add A`\n`q.add(\"B\"); // Add B`\n`String first = q.remove(); // Remove and get A`" },
+      { keywords: ["tree", "binary tree", "bst"], reply: "🌳 A Tree is a hierarchical data structure with a root node and child nodes. A Binary Search Tree (BST) is a common type for sorted data. \n\nExample (Java conceptual):\n`// A Node has data, a 'left' child, and a 'right' child`\n`Node root = new Node(10);`\n`root.left = new Node(5);`\n`root.right = new Node(15);`" },
+      { keywords: ["graph", "graphs"], reply: "🕸️ A Graph is a data structure made of nodes (vertices) and edges (lines connecting them). Used for networks, maps, etc. \n\nExample (Conceptual):\n`// V = {1, 2, 3} (Vertices)`\n`// E = {(1,2), (2,3), (1,3)} (Edges)`\n`// Represents a triangle of 3 nodes`" },
+      { keywords: ["hash table", "hashmap", "map"], reply: " A Hash Table (or HashMap) is a data structure that stores key-value pairs. It uses a 'hash function' to find items quickly. \n\nExample (Java):\n`HashMap<String, String> capital = new HashMap<String, String>();`\n`capital.put(\"USA\", \"Washington D.C.\");`\n`capital.put(\"UK\", \"London\");`\n`System.out.println(capital.get(\"UK\")); // Outputs London`" },
+      { keywords: ["heap", "min-heap", "max-heap"], reply: " A Heap is a special tree-based data structure. A 'Max-Heap' always has the largest element at the root. A 'Min-Heap' has the smallest. \n\nExample (Java conceptual):\n`PriorityQueue<Integer> minHeap = new PriorityQueue<>();`\n`minHeap.add(10);`\n`minHeap.add(5);`\n`System.out.println(minHeap.peek()); // Outputs 5`" },
+
+      { keywords: ["help", "info"], reply: "💡 You can ask me about: Python, HTML, Java, C, C++, loops, functions, arrays, data structures (stack, queue, tree, graph), OOP, pointers, and more!" },
+      { keywords: ["thank", "thanks"], reply: "You're welcome! ❤️ Happy to help with your interest in programming 👍" },
+      { keywords: ["bye", "goodbye"], reply: "Goodbye! Happy coding! 😄" }
+    ];
+
+    const fallback = "I don't know about this question. Please ask another question. (e.g., 'Python', 'HTML', 'loop')";
+
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.textContent = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function getBotReply(userText) {
+      userText = userText.toLowerCase().trim();
+      for (const res of responses) {
+        for (const key of res.keywords) {
+          if (userText.includes(key.toLowerCase())) {
+            return res.reply;
+          }
+        }
+      }
+      return fallback;
+    }
+
+    function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+      addMessage(text, "user");
+      userInput.value = "";
+
+      setTimeout(() => {
+        const reply = getBotReply(text);
+        addMessage(reply, "bot");
+      }, 400);
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    addMessage("👋 Hello! I'm the Programming Chatbot. You can ask me questions about programming! 😄", "bot");
+  </script>
+</body>
+</html>
