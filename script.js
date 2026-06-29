@@ -4,6 +4,7 @@ const sendBtn = document.getElementById("sendBtn");
 const apiKeyInput = document.getElementById("apiKeyInput");
 
 async function fetchAIResponse(userText, apiKey) {
+  // The URL must have an equal sign (=).
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const payload = {
     contents: [{
@@ -33,14 +34,16 @@ async function fetchAIResponse(userText, apiKey) {
     }
   } catch (error) {
     console.error("Error fetching AI response:", error);
-    return "Sorry, I am having trouble connecting to the AI right now.";
+    return "Sorry, I am having trouble connecting to the AI right now. Please check your API key and connection.";
   }
 }
 
+// // XSS Protection and detection of new lines (Line breaks) sent by Gemini
 function sanitizeHTML(str) {
   const temp = document.createElement('div');
   temp.textContent = str;
-  return temp.innerHTML;
+  // Converting newlines into HTML <br> tags
+  return temp.innerHTML.replace(/\n/g, '<br>');
 }
 
 function addMessage(text, sender) {
@@ -60,10 +63,27 @@ async function sendMessage() {
 
   const text = userInput.value.trim();
   if (!text) return;
+  
   addMessage(text, "user");
   userInput.value = "";
 
+  // Displaying a 'Thinking...' message while the bot searches for the answer
+  const typingMsg = document.createElement("div");
+  typingMsg.classList.add("message", "bot");
+  typingMsg.textContent = "Thinking...";
+  typingMsg.id = "typingIndicator";
+  chatBox.appendChild(typingMsg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Sending the request to the API
   const reply = await fetchAIResponse(text, apiKey);
+  
+  // 'Thinking...' massage
+  const indicator = document.getElementById("typingIndicator");
+  if (indicator) {
+      chatBox.removeChild(indicator);
+  }
+  
   addMessage(reply, "bot");
 }
 
@@ -74,4 +94,5 @@ userInput.addEventListener("keydown", e => {
   }
 });
 
+// Chat loading
 addMessage("👋 Hello! I'm the Programming Chatbot. You can ask me questions about programming! 😄", "bot");
