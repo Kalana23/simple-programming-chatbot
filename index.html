@@ -232,15 +232,78 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
+    function levenshteinDistance(a, b) {
+      if (a.length === 0) return b.length;
+      if (b.length === 0) return a.length;
+      if (a === b) return 0;
+      if (a.length > b.length) {
+        const tmp = a; a = b; b = tmp;
+      }
+      let row = [];
+      for (let i = 0; i <= a.length; i++) {
+        row[i] = i;
+      }
+      for (let i = 1; i <= b.length; i++) {
+        let prev = i;
+        for (let j = 1; j <= a.length; j++) {
+          let val;
+          if (b.charAt(i - 1) === a.charAt(j - 1)) {
+            val = row[j - 1];
+          } else {
+            val = Math.min(row[j - 1] + 1, Math.min(prev + 1, row[j] + 1));
+          }
+          row[j - 1] = prev;
+          prev = val;
+        }
+        row[a.length] = prev;
+      }
+      return row[a.length];
+    }
+
     function getBotReply(userText) {
       userText = userText.toLowerCase().trim();
+
+      const userWords = userText.split(/\s+/);
+      let bestMatch = null;
+      let minDistance = Infinity;
+
       for (const res of responses) {
         for (const key of res.keywords) {
-          if (userText.includes(key.toLowerCase())) {
-            return res.reply;
+          const keyLower = key.toLowerCase();
+          const keyWords = keyLower.split(/\s+/);
+
+          if (keyWords.length === 1) {
+            for (const word of userWords) {
+              if (Math.abs(word.length - keyLower.length) > 2) continue;
+              const distance = levenshteinDistance(word, keyLower);
+              const threshold = keyLower.length <= 4 ? 1 : 2;
+
+              if (distance <= threshold && distance < minDistance) {
+                minDistance = distance;
+                bestMatch = res.reply;
+              }
+            }
+          } else {
+            for (let i = 0; i <= userWords.length - keyWords.length; i++) {
+              const windowStr = userWords.slice(i, i + keyWords.length).join(" ");
+              if (Math.abs(windowStr.length - keyLower.length) > 3) continue;
+
+              const distance = levenshteinDistance(windowStr, keyLower);
+              const threshold = Math.max(1, Math.floor(keyLower.length / 4));
+
+              if (distance <= threshold && distance < minDistance) {
+                minDistance = distance;
+                bestMatch = res.reply;
+              }
+            }
           }
         }
       }
+
+      if (bestMatch) {
+        return bestMatch;
+      }
+
       return fallback;
     }
 
