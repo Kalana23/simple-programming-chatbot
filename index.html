@@ -10,6 +10,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- DOMPurify to prevent XSS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <!-- Marked.js for parsing Markdown -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
   <div class="chat-container">
     <div class="api-key-container">
       <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key...">

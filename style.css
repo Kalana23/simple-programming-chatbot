@@ -104,10 +104,46 @@ header {
   border-radius: 12px;
   max-width: 78%;
   line-height: 1.4;
-  white-space: pre-line;
+  white-space: normal;
   animation: fadeInMsg 0.3s ease-out forwards;
   opacity: 0;
   transform: translateY(10px);
+}
+
+.message p {
+  margin: 0 0 8px 0;
+}
+.message p:last-child {
+  margin-bottom: 0;
+}
+
+.message ul, .message ol {
+  margin: 4px 0 8px 20px;
+  padding: 0;
+}
+
+.message code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.message pre {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+}
+
+.message pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85em;
 }
 @keyframes fadeInMsg {
   to {
