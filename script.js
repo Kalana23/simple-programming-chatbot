@@ -5,8 +5,18 @@ const apiKeyInput = document.getElementById("apiKeyInput");
 const connectBtn = document.getElementById("connectBtn");
 const clearBtn = document.getElementById("clearBtn");
 const micBtn = document.getElementById("micBtn");
+const suggestionChips = document.getElementById("suggestionChips");
 
 let conversationHistory = [];
+
+if (suggestionChips) {
+  suggestionChips.addEventListener("click", (e) => {
+    if (e.target.classList.contains("chip")) {
+      userInput.value = e.target.innerText;
+      sendMessage();
+    }
+  });
+}
 
 // Connect Button Logic
 if (connectBtn) {
@@ -47,6 +57,9 @@ if (clearBtn) {
   clearBtn.addEventListener("click", () => {
     conversationHistory = [];
     chatBox.innerHTML = "";
+    if (suggestionChips) {
+      suggestionChips.style.display = "flex";
+    }
     addMessage("👋 Hello! I'm the Programming Chatbot. You can ask me questions about programming! 😄", "bot");
   });
 }
@@ -106,7 +119,15 @@ async function fetchAIResponseStream(userText, apiKey, msgElement) {
   });
 
   const payload = {
-    contents: conversationHistory
+    contents: conversationHistory,
+    systemInstruction: {
+      role: "user",
+      parts: [
+        {
+          text: "You are an Expert Software Engineer and Coding Tutor. Always provide clean, well-commented code snippets, explain concepts clearly to beginners, and maintain a highly professional yet encouraging tone."
+        }
+      ]
+    }
   };
 
   try {
@@ -222,6 +243,11 @@ async function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
   
+  // Hide suggestion chips when chat starts
+  if (suggestionChips) {
+    suggestionChips.style.display = "none";
+  }
+
   addMessage(text, "user");
   userInput.value = "";
 
