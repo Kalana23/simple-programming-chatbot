@@ -5,7 +5,7 @@ const apiKeyInput = document.getElementById("apiKeyInput");
 
 async function fetchAIResponse(userText, apiKey) {
   // The URL must have an equal sign (=).
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const payload = {
     contents: [{
       parts: [{ text: userText }]
