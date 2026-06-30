@@ -3,13 +3,19 @@ const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 const apiKeyInput = document.getElementById("apiKeyInput");
 
+let conversationHistory = [];
+
 async function fetchAIResponse(userText, apiKey) {
   // The URL must have an equal sign (=).
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+  conversationHistory.push({
+    role: "user",
+    parts: [{ text: userText }]
+  });
+
   const payload = {
-    contents: [{
-      parts: [{ text: userText }]
-    }]
+    contents: conversationHistory
   };
 
   try {
@@ -28,12 +34,19 @@ async function fetchAIResponse(userText, apiKey) {
     const data = await response.json();
 
     if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts.length > 0) {
-       return data.candidates[0].content.parts[0].text;
+       const botReply = data.candidates[0].content.parts[0].text;
+       conversationHistory.push({
+         role: "model",
+         parts: [{ text: botReply }]
+       });
+       return botReply;
     } else {
+       conversationHistory.pop();
        return "I could not process the response. Please try again.";
     }
   } catch (error) {
     console.error("Error fetching AI response:", error);
+    conversationHistory.pop();
     return "Sorry, I am having trouble connecting to the AI right now. Please check your API key and connection.";
   }
 }
