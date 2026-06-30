@@ -51,6 +51,17 @@ async function fetchAIResponse(userText, apiKey) {
   }
 }
 
+// Configure marked.js with highlight.js
+const { markedHighlight } = globalThis.markedHighlight;
+marked.use(markedHighlight({
+  emptyLangClass: 'hljs',
+  langPrefix: 'hljs language-',
+  highlight(code, lang) {
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    return hljs.highlight(code, { language }).value;
+  }
+}));
+
 // // XSS Protection and markdown parsing
 function sanitizeHTML(str) {
   // Parse markdown to HTML
