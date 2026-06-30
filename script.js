@@ -38,12 +38,12 @@ async function fetchAIResponse(userText, apiKey) {
   }
 }
 
-// // XSS Protection and detection of new lines (Line breaks) sent by Gemini
+// // XSS Protection and markdown parsing
 function sanitizeHTML(str) {
-  const temp = document.createElement('div');
-  temp.textContent = str;
-  // Converting newlines into HTML <br> tags
-  return temp.innerHTML.replace(/\n/g, '<br>');
+  // Parse markdown to HTML
+  const rawHtml = marked.parse(str, { breaks: true });
+  // Sanitize to prevent XSS
+  return DOMPurify.sanitize(rawHtml);
 }
 
 function addMessage(text, sender) {
