@@ -13,6 +13,7 @@ if (suggestionChips) {
   suggestionChips.addEventListener("click", (e) => {
     if (e.target.classList.contains("chip")) {
       userInput.value = e.target.innerText;
+      suggestionChips.style.display = "none";
       sendMessage();
     }
   });
@@ -121,10 +122,9 @@ async function fetchAIResponseStream(userText, apiKey, msgElement) {
   const payload = {
     contents: conversationHistory,
     systemInstruction: {
-      role: "user",
       parts: [
         {
-          text: "You are an Expert Software Engineer and Coding Tutor. Always provide clean, well-commented code snippets, explain concepts clearly to beginners, and maintain a highly professional yet encouraging tone."
+          text: "Act as an 'Expert Software Engineer and Coding Tutor' who provides clean, well-commented code and encouraging explanations."
         }
       ]
     }
