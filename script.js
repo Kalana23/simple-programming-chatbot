@@ -2,10 +2,45 @@ const chatBox = document.getElementById("chatBox");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 const apiKeyInput = document.getElementById("apiKeyInput");
+const connectBtn = document.getElementById("connectBtn");
 const clearBtn = document.getElementById("clearBtn");
 const micBtn = document.getElementById("micBtn");
 
 let conversationHistory = [];
+
+// Connect Button Logic
+if (connectBtn) {
+  connectBtn.addEventListener("click", async () => {
+    const apiKey = apiKeyInput.value.trim();
+    if (!apiKey) {
+      showToast("Please enter an API Key first.", false);
+      return;
+    }
+
+    connectBtn.disabled = true;
+    connectBtn.innerText = "Connecting...";
+
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+
+      const response = await fetch(url, {
+        method: "GET"
+      });
+
+      if (response.ok) {
+        showToast("API Key Connected Successfully! 🚀", true);
+      } else {
+        showToast("Invalid API Key or connection error.", false);
+      }
+    } catch (error) {
+      console.error("Connection validation error:", error);
+      showToast("Network error. Could not validate.", false);
+    } finally {
+      connectBtn.disabled = false;
+      connectBtn.innerText = "Connect";
+    }
+  });
+}
 
 // Clear Chat Functionality
 if (clearBtn) {
@@ -207,6 +242,31 @@ userInput.addEventListener("keydown", e => {
     sendMessage();
   }
 });
+
+// Toast Notification System
+function showToast(message, isSuccess) {
+  const toastContainer = document.getElementById("toastContainer");
+  if (!toastContainer) return;
+
+  const toast = document.createElement("div");
+  toast.classList.add("toast");
+  if (isSuccess) {
+    toast.classList.add("success");
+  } else {
+    toast.classList.add("error");
+  }
+  toast.innerText = message;
+
+  toastContainer.appendChild(toast);
+
+  // Remove toast after 3 seconds
+  setTimeout(() => {
+    toast.classList.add("exiting");
+    toast.addEventListener("animationend", () => {
+      toast.remove();
+    });
+  }, 3000);
+}
 
 // Chat loading
 addMessage("👋 Hello! I'm the Programming Chatbot. You can ask me questions about programming! 😄", "bot");
